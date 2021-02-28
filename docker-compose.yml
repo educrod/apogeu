@@ -1,0 +1,57 @@
+version: '3.7'
+
+services:
+
+  web:
+    image: python:3.7-buster
+    build:
+      context: .
+      dockerfile: prod.Dockerfile
+    volumes:
+      - static_volume:/usr/src/apogeu/backend/static
+    command: gunicorn apogeu.wsgi:application --bind 0.0.0.0:8000
+    expose:
+      - 8000
+    environment:
+      - SECRET_KEY=%_h7n!@v08*d@1b+q7mth9^4_s&81h+03d*db&r&ewrj5@mtu)
+      - SQL_HOST=db
+    restart: always
+    links:
+      - db
+    depends_on:
+      - db
+
+  db:
+    image: postgres:10
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/pgsql/data
+    environment:
+      - POSTGRES_USER=apogeu
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=apogeu
+
+  nginx:
+    image: nginx:latest
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    volumes:
+      - static_volume:/usr/src/apogeu/backend/static
+    ports:
+      - 80:80
+    hostname: dev-apogeu.localhost
+    links:
+      - web
+    depends_on:
+      - web
+    dns:
+      - 127.0.0.1
+    dns_search: localhost
+
+volumes:
+  static_volume:
+  postgres_data:
