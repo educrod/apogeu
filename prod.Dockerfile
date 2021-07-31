@@ -13,8 +13,6 @@ WORKDIR /usr/src/apogeu
 RUN pip --proxy=http://189.125.185.46:3128 install --upgrade pip
 RUN pip --proxy=http://189.125.185.46:3128 install pipenv
 COPY ./Pipfile /usr/src/apogeu/Pipfile
-ENV http_proxy http://189.125.185.46:3128
-ENV https_proxy http://189.125.185.46:3128
 RUN pipenv install --skip-lock --system
 
 # copy project
